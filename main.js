@@ -5,12 +5,13 @@ const CryptoJS = require("crypto-js")
     ,WebSocket = require("ws")
     ,Block = require("./block.js")
     ,getGenesisBlock =  require("./getGenesisBlock.js")
+    ,initHttpServer = require("./initHttpServer.js")
+    ,initP2PServer = rquire("./initP2PServer.js")
     ;
 
 const http_port = process.env.HTTP_PORT || 3001
     ,p2p_port = process.env.P2P_PORT || 6001
     ,initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : [];
-
 
 
 var sockets = [];
@@ -21,38 +22,8 @@ var MessageType = {
 };
 
 
-
 var blockchain = [getGenesisBlock()];
 
-const initHttpServer = () => {
-    var app = express();
-    app.use(bodyParser.json());
-
-    app.get('/blocks', (req, res) => res.send(JSON.stringify(blockchain)));
-    app.post('/mineBlock', (req, res) => {
-        var newBlock = generateNextBlock(req.body.data);
-        addBlock(newBlock);
-        broadcast(responseLatestMsg());
-        console.log('block added: ' + JSON.stringify(newBlock));
-        res.send();
-    });
-    app.get('/peers', (req, res) => {
-        res.send(sockets.map(s => s._socket.remoteAddress + ':' + s._socket.remotePort));
-    });
-    app.post('/addPeer', (req, res) => {
-        connectToPeers([req.body.peer]);
-        res.send();
-    });
-    app.listen(http_port, () => console.log('Listening http on port: ' + http_port));
-};
-
-
-const initP2PServer = () => {
-    var server = new WebSocket.Server({port: p2p_port});
-    server.on('connection', ws => initConnection(ws));
-    console.log('listening websocket p2p port on: ' + p2p_port);
-
-};
 
 const initConnection = (ws) => {
     sockets.push(ws);
@@ -199,5 +170,7 @@ const write = (ws, message) => ws.send(JSON.stringify(message));
 const broadcast = (message) => sockets.forEach(socket => write(socket, message));
 
 connectToPeers(initialPeers);
-initHttpServer();
-initP2PServer();
+
+const app = express();
+initHttpServer(app, http_port);
+initP2PServer(p2p_port);
