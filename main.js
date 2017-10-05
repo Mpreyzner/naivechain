@@ -4,6 +4,7 @@ const CryptoJS = require("crypto-js")
     ,bodyParser = require('body-parser')
     ,WebSocket = require("ws")
     ,Block = require("./block.js")
+    ,getGenesisBlock =  require("./getGenesisBlock.js")
     ;
 
 const http_port = process.env.HTTP_PORT || 3001
@@ -19,9 +20,7 @@ var MessageType = {
     RESPONSE_BLOCKCHAIN: 2
 };
 
-const getGenesisBlock = () => {
-    return new Block(0, "0", 1465154705, "my genesis block!!", "816534932c2b7154836da6afc367695e6337db8a921823784c14378abed4f7d7");
-};
+
 
 var blockchain = [getGenesisBlock()];
 
