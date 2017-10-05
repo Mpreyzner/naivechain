@@ -1,8 +1,8 @@
 'use strict';
-var CryptoJS = require("crypto-js");
-var express = require("express");
-var bodyParser = require('body-parser');
-var WebSocket = require("ws");
+const CryptoJS = require("crypto-js")
+    ,express = require("express")
+    ,bodyParser = require('body-parser')
+    ,WebSocket = require("ws");
 
 var http_port = process.env.HTTP_PORT || 3001;
 var p2p_port = process.env.P2P_PORT || 6001;
